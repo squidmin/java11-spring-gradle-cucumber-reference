@@ -1,0 +1,33 @@
+package org.squidmin.cucumber.skeleton;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+public class StepDefinitions {
+
+    @Autowired
+    private String cukes;
+
+    @Autowired
+    private Belly belly;
+
+    @Given("I have {int} cukes in my belly")
+    public void I_have_cukes_in_my_belly(int cukes) {
+        belly.eat(Integer.parseInt(this.cukes));
+    }
+
+    @When("I wait 1 hour")
+    public void i_wait_1_hour() {
+
+    }
+
+    @Then("my belly should growl")
+    public void my_belly_should_growl() {
+
+    }
+
+}

@@ -1,0 +1,147 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.10'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'org.squidmin.cucumber.skeleton'
+version = '0.0.1-SNAPSHOT'
+println "Build Version = ${version ?: '[none]'}"
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.squidmin.cucumber.skeleton.BddApplication'
+        )
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2021.0.6")
+}
+
+dependencies {
+    // Core libraries
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.cloud:spring-cloud-context'
+
+//    implementation 'io.cucumber:cucumber-jvm'
+    implementation group: 'io.cucumber', name: 'cucumber-jvm', version: '7.12.0'
+//    implementation 'io.cucumber:cucumber-spring'
+    implementation group: 'io.cucumber', name: 'cucumber-spring', version: '7.1.0'
+
+
+    // BigQuery
+    implementation platform('com.google.cloud:libraries-bom:26.11.0')
+    implementation 'com.google.cloud:google-cloud-bigquery:2.24.2'
+
+    // SnakeYAML
+    implementation('org.yaml:snakeyaml') {
+        version {
+            strictly "1.33"
+        }
+        because "patch CVE-2022-25857 brought in by snakeyaml."
+    }
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    // Spring configuration processing
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+
+    // Test dependencies
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testImplementation 'junit:junit:4.13.1'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testImplementation(platform("org.junit:junit-bom:5.9.3"))
+    testImplementation(platform("io.cucumber:cucumber-bom:7.12.0"))
+
+//    testImplementation("io.cucumber:cucumber-java")
+    testImplementation 'io.cucumber:cucumber-java:7.12.0'
+//    testImplementation("io.cucumber:cucumber-junit")
+    testImplementation 'io.cucumber:cucumber-junit:7.12.0'
+    testImplementation("io.cucumber:cucumber-junit-platform-engine")
+    testImplementation("org.junit.platform:junit-platform-suite")
+    testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+
+    systemProperty 'spring.profiles.active', System.getProperty('PROFILE')
+    systemProperty 'GCP_SA_KEY_PATH', System.getProperty('GCP_SA_KEY_PATH')
+    systemProperty 'GCP_ADC_ACCESS_TOKEN', System.getProperty('GCP_ADC_ACCESS_TOKEN')
+    systemProperty 'GCP_SA_ACCESS_TOKEN', System.getProperty('GCP_SA_ACCESS_TOKEN')
+    systemProperty 'GCP_DEFAULT_USER_PROJECT_ID', System.getProperty('GCP_DEFAULT_USER_PROJECT_ID')
+    systemProperty 'GCP_SA_PROJECT_ID', System.getProperty('GCP_SA_PROJECT_ID')
+    systemProperty 'GCP_DEFAULT_USER_DATASET', System.getProperty('GCP_DEFAULT_USER_DATASET')
+    systemProperty 'GCP_SA_DATASET', System.getProperty('GCP_SA_DATASET')
+    systemProperty 'GCP_SA_USER_TABLE', System.getProperty('GCP_SA_USER_TABLE')
+    systemProperty 'GCP_SA_TABLE', System.getProperty('GCP_SA_TABLE')
+
+    testLogging {
+        showStandardStreams = true
+        events 'passed', 'skipped', 'failed'
+    }
+
+    // Work around. Gradle does not include enough information to disambiguate
+    // between different examples and scenarios.
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+}
+
+task cukes () {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            systemProperty 'spring.profiles.active', System.getProperty('PROFILE')
+            systemProperty 'GCP_SA_KEY_PATH', System.getProperty('GCP_SA_KEY_PATH')
+            systemProperty 'GCP_ADC_ACCESS_TOKEN', System.getProperty('GCP_ADC_ACCESS_TOKEN')
+            systemProperty 'GCP_SA_ACCESS_TOKEN', System.getProperty('GCP_SA_ACCESS_TOKEN')
+            systemProperty 'GCP_DEFAULT_USER_PROJECT_ID', System.getProperty('GCP_DEFAULT_USER_PROJECT_ID')
+            systemProperty 'GCP_SA_PROJECT_ID', System.getProperty('GCP_SA_PROJECT_ID')
+            systemProperty 'GCP_DEFAULT_USER_DATASET', System.getProperty('GCP_DEFAULT_USER_DATASET')
+            systemProperty 'GCP_SA_DATASET', System.getProperty('GCP_SA_DATASET')
+            systemProperty 'GCP_SA_USER_TABLE', System.getProperty('GCP_SA_USER_TABLE')
+            systemProperty 'GCP_SA_TABLE', System.getProperty('GCP_SA_TABLE')
+            main = 'io.cucumber.core.cli.Main'
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:target/cucumber-report.html',
+                    '--glue', 'org.squidmin.cucumber.skeleton',
+                    'src/test/resources/org/squidmin/cucumber/skeleton'
+            ]
+        }
+    }
+}
