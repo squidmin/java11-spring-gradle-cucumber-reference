@@ -44,9 +44,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-context'
 
 //    implementation 'io.cucumber:cucumber-jvm'
-    implementation group: 'io.cucumber', name: 'cucumber-jvm', version: '7.12.0'
+    implementation 'io.cucumber:cucumber-jvm:7.12.0'
+//    implementation group: 'io.cucumber', name: 'cucumber-jvm', version: '7.12.0'
 //    implementation 'io.cucumber:cucumber-spring'
-    implementation group: 'io.cucumber', name: 'cucumber-spring', version: '7.1.0'
+    implementation 'io.cucumber:cucumber-spring:7.12.0'
+//    implementation group: 'io.cucumber', name: 'cucumber-spring', version: '7.1.0'
 
 
     // BigQuery
@@ -120,7 +122,7 @@ tasks.named('test') {
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
 }
 
-task cukes () {
+tasks.register('cukes') {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
@@ -134,13 +136,14 @@ task cukes () {
             systemProperty 'GCP_SA_DATASET', System.getProperty('GCP_SA_DATASET')
             systemProperty 'GCP_SA_USER_TABLE', System.getProperty('GCP_SA_USER_TABLE')
             systemProperty 'GCP_SA_TABLE', System.getProperty('GCP_SA_TABLE')
+
             main = 'io.cucumber.core.cli.Main'
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
             args = [
                     '--plugin', 'pretty',
                     '--plugin', 'html:target/cucumber-report.html',
                     '--glue', 'org.squidmin.cucumber.skeleton',
-                    'src/test/resources/org/squidmin/cucumber/skeleton'
+                    'src/test/resources/bdd'
             ]
         }
     }
