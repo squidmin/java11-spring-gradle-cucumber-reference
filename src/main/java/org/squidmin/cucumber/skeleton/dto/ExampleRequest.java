@@ -1,10 +1,9 @@
-package org.squidmin.java.spring.gradle.bigquery.dto;
+package org.squidmin.cucumber.skeleton.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.squidmin.java.spring.gradle.bigquery.validation.ExampleRequestBodyConstraint;
 
 import java.util.List;
 
@@ -18,7 +17,6 @@ public class ExampleRequest {
     private String dataset;
     private String table;
 
-    @ExampleRequestBodyConstraint
     private List<ExampleRequestItem> body;
 
 }

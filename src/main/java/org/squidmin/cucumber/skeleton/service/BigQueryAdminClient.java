@@ -1,28 +1,29 @@
-package org.squidmin.java.spring.gradle.bigquery.service;
+package org.squidmin.cucumber.skeleton.service;
 
 import autovalue.shaded.com.google.common.collect.ImmutableMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.bigquery.*;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.squidmin.java.spring.gradle.bigquery.config.BigQueryConfig;
-import org.squidmin.java.spring.gradle.bigquery.config.DataTypes;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SchemaDefault;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SelectFieldsDefault;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.WhereFieldsDefault;
-import org.squidmin.java.spring.gradle.bigquery.dao.RecordExample;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponse;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponseItem;
-import org.squidmin.java.spring.gradle.bigquery.dto.Query;
-import org.squidmin.java.spring.gradle.bigquery.exception.CustomJobException;
-import org.squidmin.java.spring.gradle.bigquery.logger.Logger;
-import org.squidmin.java.spring.gradle.bigquery.util.BigQueryUtil;
-import org.squidmin.java.spring.gradle.bigquery.util.StringUtils;
+import org.squidmin.cucumber.skeleton.config.BigQueryConfig;
+import org.squidmin.cucumber.skeleton.config.DataTypes;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SchemaDefault;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SelectFieldsDefault;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.WhereFieldsDefault;
+import org.squidmin.cucumber.skeleton.dao.RecordExample;
+import org.squidmin.cucumber.skeleton.dto.ExampleResponse;
+import org.squidmin.cucumber.skeleton.dto.ExampleResponseItem;
+import org.squidmin.cucumber.skeleton.dto.Query;
+import org.squidmin.cucumber.skeleton.exception.CustomJobException;
+import org.squidmin.cucumber.skeleton.logger.Logger;
+import org.squidmin.cucumber.skeleton.util.BigQueryUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,7 @@ import java.util.*;
     WhereFieldsDefault.class,
     DataTypes.class,
 })
+@Getter
 public class BigQueryAdminClient {
 
     private final String gcpDefaultUserProjectId, gcpDefaultUserDataset, gcpDefaultUserTable;
@@ -147,6 +149,25 @@ public class BigQueryAdminClient {
         } catch (BigQueryException e) {
             Logger.log(String.format("Dataset \"%s\" was not deleted with contents.", dataset), Logger.LogType.ERROR);
         }
+    }
+
+    public boolean tableExists(String dataset, String table) {
+        boolean tableExists;
+        try {
+            Table _table = bq.getTable(TableId.of(dataset, table));
+            if (null != _table && _table.exists()) {
+                tableExists = true;
+                Logger.log("Table already exists", Logger.LogType.INFO);
+            } else {
+                tableExists = false;
+                Logger.log("Table not found", Logger.LogType.INFO);
+            }
+        } catch (BigQueryException e) {
+            tableExists = false;
+            Logger.log("Table not found.".concat(e.getMessage()), Logger.LogType.ERROR);
+            Logger.log(e.getMessage(), Logger.LogType.ERROR);
+        }
+        return tableExists;
     }
 
     public boolean createTable(String dataset, String table) {
@@ -273,8 +294,8 @@ public class BigQueryAdminClient {
     }
 
     public ResponseEntity<ExampleResponse> restfulQuery(Query query) throws IOException {
-        String _query = mapper.writeValueAsString(query);
-        Logger.log(String.format("QUERY == %s", _query), Logger.LogType.INFO);
+//        String _query = mapper.writeValueAsString(query);
+//        Logger.log(String.format("QUERY == %s", _query), Logger.LogType.INFO);
         String uri = bqConfig.getQueryUri();
         HttpHeaders httpHeaders = getHttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(mapper.writeValueAsString(query), httpHeaders);
@@ -284,7 +305,7 @@ public class BigQueryAdminClient {
             if (!StringUtils.isEmpty(responseBody)) {
                 return new ResponseEntity<>(
                     ExampleResponse.builder()
-                        .body(BigQueryUtil.toList(responseBody.getBytes(StandardCharsets.UTF_8), bqConfig.getSelectFieldsDefault(), true))
+                        .entries(BigQueryUtil.toList(responseBody.getBytes(StandardCharsets.UTF_8), bqConfig.getSelectFieldsDefault(), true))
                         .build(),
                     HttpStatus.OK
                 );
@@ -296,7 +317,7 @@ public class BigQueryAdminClient {
             Logger.log(errorMessage, Logger.LogType.ERROR);
             return new ResponseEntity<>(
                 ExampleResponse.builder()
-                    .body(Collections.singletonList(ExampleResponseItem.builder().build()))
+                    .entries(Collections.singletonList(ExampleResponseItem.builder().build()))
                     .errors(Collections.singletonList(errorMessage))
                     .build(),
                 e.getStatusCode()

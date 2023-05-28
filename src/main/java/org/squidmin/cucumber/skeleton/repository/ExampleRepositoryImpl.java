@@ -1,14 +1,11 @@
-package org.squidmin.java.spring.gradle.bigquery.repository;
+package org.squidmin.cucumber.skeleton.repository;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.squidmin.java.spring.gradle.bigquery.dao.RecordExample;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponse;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponseItem;
-import org.squidmin.java.spring.gradle.bigquery.dto.Query;
-import org.squidmin.java.spring.gradle.bigquery.service.BigQueryAdminClient;
-import org.squidmin.java.spring.gradle.bigquery.util.BigQueryUtil;
+import org.squidmin.cucumber.skeleton.dao.RecordExample;
+import org.squidmin.cucumber.skeleton.dto.ExampleResponse;
+import org.squidmin.cucumber.skeleton.dto.Query;
+import org.squidmin.cucumber.skeleton.service.BigQueryAdminClient;
+import org.squidmin.cucumber.skeleton.util.BigQueryUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +26,7 @@ public class ExampleRepositoryImpl implements ExampleRepository {
 
     @Override
     public ExampleResponse query(Query query) {
-        return ExampleResponse.builder().body(BigQueryUtil.toList(bqAdminClient.query(query.getQuery()))).build();
+        return ExampleResponse.builder().entries(BigQueryUtil.toList(bqAdminClient.query(query.getQuery()))).build();
     }
 
     @Override

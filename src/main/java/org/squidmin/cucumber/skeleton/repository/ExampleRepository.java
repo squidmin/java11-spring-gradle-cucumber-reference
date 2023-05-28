@@ -1,8 +1,8 @@
-package org.squidmin.java.spring.gradle.bigquery.repository;
+package org.squidmin.cucumber.skeleton.repository;
 
-import org.squidmin.java.spring.gradle.bigquery.dao.RecordExample;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponse;
-import org.squidmin.java.spring.gradle.bigquery.dto.Query;
+import org.squidmin.cucumber.skeleton.dao.RecordExample;
+import org.squidmin.cucumber.skeleton.dto.ExampleResponse;
+import org.squidmin.cucumber.skeleton.dto.Query;
 
 import java.io.IOException;
 import java.util.List;

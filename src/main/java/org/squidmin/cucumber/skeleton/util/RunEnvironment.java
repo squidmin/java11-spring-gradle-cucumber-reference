@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.util;
+package org.squidmin.cucumber.skeleton.util;
 
 import com.google.cloud.bigquery.Schema;
 import lombok.Builder;

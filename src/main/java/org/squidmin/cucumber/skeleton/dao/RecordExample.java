@@ -1,17 +1,12 @@
-package org.squidmin.java.spring.gradle.bigquery.dao;
+package org.squidmin.cucumber.skeleton.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
-import org.squidmin.java.spring.gradle.bigquery.logger.Logger;
+import org.squidmin.cucumber.skeleton.logger.Logger;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.HashMap;
 import java.util.Map;
 

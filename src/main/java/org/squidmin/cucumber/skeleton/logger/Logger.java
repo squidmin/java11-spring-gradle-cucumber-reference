@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.logger;
+package org.squidmin.cucumber.skeleton.logger;
 
 import lombok.extern.slf4j.Slf4j;
 

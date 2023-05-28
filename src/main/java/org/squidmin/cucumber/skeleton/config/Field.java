@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.config;
+package org.squidmin.cucumber.skeleton.config;
 
 import lombok.Data;
 

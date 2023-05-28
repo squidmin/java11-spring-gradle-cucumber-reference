@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.dto;
+package org.squidmin.cucumber.skeleton.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +8,6 @@ import lombok.Data;
 public class Query {
 
     private String query;
-    private String useLegacySql;
+    private boolean useLegacySql;
 
 }

@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.dto.bigquery;
+package org.squidmin.cucumber.skeleton.dto.bigquery;
 
 import lombok.Builder;
 import lombok.Data;

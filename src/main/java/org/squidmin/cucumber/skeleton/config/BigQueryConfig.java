@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.config;
+package org.squidmin.cucumber.skeleton.config;
 
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -7,23 +7,26 @@ import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SchemaDefault;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SelectFieldsDefault;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.WhereFieldsDefault;
-import org.squidmin.java.spring.gradle.bigquery.logger.Logger;
-import org.squidmin.java.spring.gradle.bigquery.util.StringUtils;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SchemaDefault;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SelectFieldsDefault;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.WhereFieldsDefault;
+import org.squidmin.cucumber.skeleton.logger.Logger;
+import org.squidmin.cucumber.skeleton.util.BigQueryUtil.CLI_ARG_KEYS;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Date;
+import java.time.Instant;
 
 @Configuration
 @ComponentScan(basePackages = {
-    "org.squidmin.java.spring.gradle.bigquery"
+    "org.squidmin.cucumber.skeleton"
 })
 @Getter
 @Slf4j
@@ -61,26 +64,23 @@ public class BigQueryConfig {
                           SchemaDefault schemaDefault,
                           DataTypes dataTypes,
                           SelectFieldsDefault selectFieldsDefault,
-                          WhereFieldsDefault whereFieldsDefault) {
+                          WhereFieldsDefault whereFieldsDefault) throws IOException {
 
-        this.gcpDefaultUserProjectId = gcpDefaultUserProjectId;
-        this.gcpDefaultUserDataset = gcpDefaultUserDataset;
-        this.gcpDefaultUserTable = gcpDefaultUserTable;
+        this.gcpDefaultUserProjectId = isEmpty(getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_PROJECT_ID.name())) ? gcpDefaultUserProjectId : getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_PROJECT_ID.name());
+        this.gcpDefaultUserDataset = isEmpty(getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_DATASET.name())) ? gcpDefaultUserDataset : getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_DATASET.name());
+        this.gcpDefaultUserTable = isEmpty(getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_TABLE.name())) ? gcpDefaultUserTable : getProperty(CLI_ARG_KEYS.GCP_DEFAULT_USER_TABLE.name());
 
-        this.gcpSaProjectId = gcpSaProjectId;
-        this.gcpSaDataset = gcpSaDataset;
-        this.gcpSaTable = gcpSaTable;
+        this.gcpSaProjectId = isEmpty(getProperty(CLI_ARG_KEYS.GCP_SA_PROJECT_ID.name())) ? gcpSaProjectId : getProperty(CLI_ARG_KEYS.GCP_SA_PROJECT_ID.name());
+        this.gcpSaDataset = isEmpty(getProperty(CLI_ARG_KEYS.GCP_SA_DATASET.name())) ? gcpSaDataset : getProperty(CLI_ARG_KEYS.GCP_SA_DATASET.name());
+        this.gcpSaTable = isEmpty(getProperty(CLI_ARG_KEYS.GCP_SA_TABLE.name())) ? gcpSaTable : getProperty(CLI_ARG_KEYS.GCP_SA_TABLE.name());
 
         this.queryUri = queryUri;
 
-        this.gcpSaKeyPath = System.getProperty("GCP_SA_KEY_PATH");
-//        Logger.log(String.format("BQ JDK: GCP_SA_KEY_PATH == %s", this.gcpSaKeyPath), Logger.LogType.CYAN);
-        File credentialsPath = new File(gcpSaKeyPath);
-
-        this.gcpAdcAccessToken = System.getProperty("GCP_ADC_ACCESS_TOKEN");
-//        Logger.log(String.format("GCP_ADC_ACCESS_TOKEN == %s", this.gcpAdcAccessToken), Logger.LogType.CYAN);
-
-        this.gcpSaAccessToken = System.getProperty("GCP_SA_ACCESS_TOKEN");
+        this.gcpSaKeyPath = getProperty(CLI_ARG_KEYS.GCP_SA_KEY_PATH.name());
+        Logger.log(String.format("BQ JDK: GCP_SA_KEY_PATH == %s", this.gcpSaKeyPath), Logger.LogType.CYAN);
+        this.gcpAdcAccessToken = getProperty(CLI_ARG_KEYS.GCP_ADC_ACCESS_TOKEN.name());
+        Logger.log(String.format("GCP_ADC_ACCESS_TOKEN == %s", this.gcpAdcAccessToken), Logger.LogType.CYAN);
+        this.gcpSaAccessToken = getProperty(CLI_ARG_KEYS.GCP_SA_ACCESS_TOKEN.name());
 //        Logger.log(String.format("GCP_SA_ACCESS_TOKEN == %s", this.gcpSaAccessToken), Logger.LogType.CYAN);
 
         this.schemaDefault = schemaDefault;
@@ -92,6 +92,7 @@ public class BigQueryConfig {
         bqOptionsBuilder.setProjectId(gcpDefaultUserProjectId).setLocation("us");
         GoogleCredentials credentials;
         boolean isBqJdkAuthenticatedUsingSaKeyFile;
+        File credentialsPath = new File(this.gcpSaKeyPath);
         try (FileInputStream stream = new FileInputStream(credentialsPath)) {
             credentials = ServiceAccountCredentials.fromStream(stream);
             Logger.log("BQ JDK: SETTING SERVICE ACCOUNT CREDENTIALS (GOOGLE_APPLICATION_CREDENTIALS) TO BQ OPTIONS.", Logger.LogType.CYAN);
@@ -109,12 +110,19 @@ public class BigQueryConfig {
 
         logSaKeyFileAuth(isBqJdkAuthenticatedUsingSaKeyFile);
 
-        String adcAccessToken = System.getProperty("GCP_ADC_ACCESS_TOKEN");
+        String adcAccessToken = System.getProperty(CLI_ARG_KEYS.GCP_ADC_ACCESS_TOKEN.name());
         if (!isBqJdkAuthenticatedUsingSaKeyFile && StringUtils.isNotEmpty(adcAccessToken)) {
+            GoogleCredentials _credentials = GoogleCredentials.newBuilder()
+                .setAccessToken(
+                    AccessToken.newBuilder()
+                        .setTokenValue(adcAccessToken)
+                        .setExpirationTime(Date.from(Instant.now().plusSeconds(60 * 30)))
+                        .build()
+                )
+                .build();
+            _credentials.refreshIfExpired();
             bigQuery = bqOptionsBuilder.setCredentials(
-                GoogleCredentials.newBuilder()
-                    .setAccessToken(AccessToken.newBuilder().setTokenValue(adcAccessToken).build())
-                    .build()
+                _credentials
             ).build().getService();
             Logger.log("Authenticated successfully using Application Default Credentials (ADC) access token.", Logger.LogType.INFO);
         } else {
@@ -131,6 +139,14 @@ public class BigQueryConfig {
             Logger.log("BigQuery JDK was not able to authenticate using a service account key file.", Logger.LogType.INFO);
             Logger.log("Attempting to authenticate using Application Default Credentials.", Logger.LogType.INFO);
         }
+    }
+
+    private static boolean isEmpty(String str) {
+        return StringUtils.isEmpty(str);
+    }
+
+    private static String getProperty(String key) {
+        return System.getProperty(key);
     }
 
 }

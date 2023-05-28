@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox;
+package org.squidmin.cucumber.skeleton.config.tables.sandbox;
 
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

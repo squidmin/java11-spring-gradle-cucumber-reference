@@ -1,17 +1,17 @@
-package org.squidmin.java.spring.gradle.bigquery.util;
+package org.squidmin.cucumber.skeleton.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.bigquery.*;
 import lombok.extern.slf4j.Slf4j;
-import org.squidmin.java.spring.gradle.bigquery.config.DataTypes;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SchemaDefault;
-import org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox.SelectFieldsDefault;
-import org.squidmin.java.spring.gradle.bigquery.dto.ExampleResponseItem;
-import org.squidmin.java.spring.gradle.bigquery.dto.bigquery.BigQueryRestServiceResponse;
-import org.squidmin.java.spring.gradle.bigquery.dto.bigquery.BigQueryRow;
-import org.squidmin.java.spring.gradle.bigquery.dto.bigquery.BigQueryRowValue;
-import org.squidmin.java.spring.gradle.bigquery.logger.Logger;
+import org.squidmin.cucumber.skeleton.config.DataTypes;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SchemaDefault;
+import org.squidmin.cucumber.skeleton.config.tables.sandbox.SelectFieldsDefault;
+import org.squidmin.cucumber.skeleton.dto.ExampleResponseItem;
+import org.squidmin.cucumber.skeleton.dto.bigquery.BigQueryRestServiceResponse;
+import org.squidmin.cucumber.skeleton.dto.bigquery.BigQueryRow;
+import org.squidmin.cucumber.skeleton.dto.bigquery.BigQueryRowValue;
+import org.squidmin.cucumber.skeleton.logger.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -187,7 +187,7 @@ public class BigQueryUtil {
                 f -> {
                     log.info("name={}, type={}", f.getName(), f.getType());
                     fields.add(
-                        com.google.cloud.bigquery.Field.of(
+                        Field.of(
                             f.getName(),
                             translateType(f.getType(), dataTypes)
                         )
@@ -195,7 +195,7 @@ public class BigQueryUtil {
                 }
             );
             Logger.log("Finished generating schema.", Logger.LogType.CYAN);
-            return com.google.cloud.bigquery.Schema.of(fields);
+            return Schema.of(fields);
         }
 
         public static Schema translate(String schema, DataTypes dataTypes) {
@@ -208,7 +208,7 @@ public class BigQueryUtil {
                     String name = split[0], type = split[1];
                     log.info("name={}, type={}", name, type);
                     fields.add(
-                        com.google.cloud.bigquery.Field.of(
+                        Field.of(
                             name,
                             translateType(type, dataTypes)
                         )
@@ -216,7 +216,7 @@ public class BigQueryUtil {
                 }
             );
             Logger.log("Finished generating schema.", Logger.LogType.CYAN);
-            return com.google.cloud.bigquery.Schema.of(fields);
+            return Schema.of(fields);
         }
 
         private static StandardSQLTypeName translateType(String type, DataTypes dataTypes) {
@@ -231,6 +231,14 @@ public class BigQueryUtil {
                 return StandardSQLTypeName.STRING;
             }
         }
+    }
+
+    public enum CLI_ARG_KEYS {
+        GCP_SA_KEY_PATH, GCP_ADC_ACCESS_TOKEN, GCP_SA_ACCESS_TOKEN,
+        GCP_DEFAULT_USER_PROJECT_ID, GCP_DEFAULT_USER_DATASET, GCP_DEFAULT_USER_TABLE,
+        GCP_SA_PROJECT_ID, GCP_SA_DATASET, GCP_SA_TABLE,
+        SCHEMA,
+        QUERY
     }
 
 }

@@ -1,9 +1,9 @@
-package org.squidmin.java.spring.gradle.bigquery.config.tables.sandbox;
+package org.squidmin.cucumber.skeleton.config.tables.sandbox;
 
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.squidmin.java.spring.gradle.bigquery.config.Field;
+import org.squidmin.cucumber.skeleton.config.Field;
 
 import java.util.ArrayList;
 import java.util.List;

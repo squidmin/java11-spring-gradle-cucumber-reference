@@ -1,10 +1,10 @@
-package org.squidmin.java.spring.gradle.bigquery.dto;
+package org.squidmin.cucumber.skeleton.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.squidmin.java.spring.gradle.bigquery.logger.Logger;
+import org.squidmin.cucumber.skeleton.logger.Logger;
 
 @Data
 @Builder

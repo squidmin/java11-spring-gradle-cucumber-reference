@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.exception;
+package org.squidmin.cucumber.skeleton.exception;
 
 public class CustomJobException extends Exception {
 

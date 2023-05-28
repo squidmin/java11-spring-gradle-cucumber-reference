@@ -1,4 +1,4 @@
-package org.squidmin.java.spring.gradle.bigquery.dto;
+package org.squidmin.cucumber.skeleton.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class ExampleResponse {
 
-    private List<ExampleResponseItem> body;
+    private List<ExampleResponseItem> entries;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> errors;
