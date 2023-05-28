@@ -1,0 +1,32 @@
+[
+  {
+    "name": "id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "The primary key for this table."
+  },
+  {
+    "name": "creation_timestamp",
+    "type": "DATETIME",
+    "mode": "REQUIRED",
+    "description": "Time at which the record was added to the database."
+  },
+  {
+    "name": "last_update_timestamp",
+    "type": "DATETIME",
+    "mode": "REQUIRED",
+    "description": "Time at which the record was most recently updated in the database."
+  },
+  {
+    "name": "column_a",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "An example STRING column."
+  },
+  {
+    "name": "column_b",
+    "type": "BOOL",
+    "mode": "NULLABLE",
+    "description": "An example BOOL column."
+  }
+]
