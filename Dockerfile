@@ -34,10 +34,7 @@ RUN pip3 install --no-cache --upgrade pip setuptools
 
 WORKDIR ${APP_DIR}
 
-# Copy the project into the container.
-#ADD . ${APP_DIR}
 COPY . .
 
 #ENTRYPOINT ["sh", "-c", "cd ${APP_DIR} && sh"]
-#ENTRYPOINT ["./gradlew", "cukes", "-DPROFILE=${PROFILE}", "-DGCP_SA_KEY_PATH=${GCP_SA_KEY_PATH}", "-DGCP_ADC_ACCESS_TOKEN=$GCP_ADC_ACCESS_TOKEN"]
 ENTRYPOINT ./gradlew cukes -DPROFILE=${PROFILE} -DGCP_SA_KEY_PATH=${GCP_SA_KEY_PATH} -DGCP_ADC_ACCESS_TOKEN=${GCP_ADC_ACCESS_TOKEN}

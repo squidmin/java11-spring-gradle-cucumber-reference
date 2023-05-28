@@ -27,8 +27,6 @@ echo "Table: ${GCP_DEFAULT_USER_TABLE}"
 chmod +x ./scripts/create_dataset.sh
 chmod +x ./scripts/delete_dataset.sh
 chmod +x ./scripts/create_table.sh
-chmod +x ./scripts/delete_table.sh
-chmod +x ./scripts/test.sh
 
 
 ./scripts/create_dataset.sh ${GCP_DEFAULT_USER_PROJECT_ID} ${GCP_DEFAULT_USER_DATASET}
@@ -41,13 +39,13 @@ docker build \
   --build-arg GCP_DEFAULT_USER_DATASET=${GCP_DEFAULT_USER_DATASET} \
   --build-arg GCP_DEFAULT_USER_TABLE=${GCP_DEFAULT_USER_TABLE} \
   -t java11-spring-gradle-cucumber-reference .
-echo "Starting Cucumber tests!"
+echo "Starting Cucumber tests! 🥒"
 docker run --rm \
   --env PROFILE=local \
   --env GCP_ADC_ACCESS_TOKEN="$(gcloud auth application-default print-access-token)" \
-  -v /Users/admin/.config/gcloud:/root/.config/gcloud \
-  -v /Users/admin/google-cloud-sdk:/root/google-cloud-sdk \
-  -v /Users/admin/.m2:/root/.m2 \
+  -v $HOME/.config/gcloud:/root/.config/gcloud \
+  -v $HOME/google-cloud-sdk:/root/google-cloud-sdk \
+  -v $HOME/.m2:/root/.m2 \
   java11-spring-gradle-cucumber-reference
 sleep 1
 ./scripts/delete_dataset.sh ${GCP_DEFAULT_USER_PROJECT_ID} ${GCP_DEFAULT_USER_DATASET}

@@ -77,9 +77,9 @@ public class BigQueryConfig {
         this.queryUri = queryUri;
 
         this.gcpSaKeyPath = getProperty(CLI_ARG_KEYS.GCP_SA_KEY_PATH.name());
-        Logger.log(String.format("BQ JDK: GCP_SA_KEY_PATH == %s", this.gcpSaKeyPath), Logger.LogType.CYAN);
+//        Logger.log(String.format("BQ JDK: GCP_SA_KEY_PATH == %s", this.gcpSaKeyPath), Logger.LogType.CYAN);
         this.gcpAdcAccessToken = getProperty(CLI_ARG_KEYS.GCP_ADC_ACCESS_TOKEN.name());
-        Logger.log(String.format("GCP_ADC_ACCESS_TOKEN == %s", this.gcpAdcAccessToken), Logger.LogType.CYAN);
+//        Logger.log(String.format("GCP_ADC_ACCESS_TOKEN == %s", this.gcpAdcAccessToken), Logger.LogType.CYAN);
         this.gcpSaAccessToken = getProperty(CLI_ARG_KEYS.GCP_SA_ACCESS_TOKEN.name());
 //        Logger.log(String.format("GCP_SA_ACCESS_TOKEN == %s", this.gcpSaAccessToken), Logger.LogType.CYAN);
 
